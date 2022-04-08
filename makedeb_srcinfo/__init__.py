@@ -176,3 +176,19 @@ class SrcinfoParser:
         desc = ": ".join(parts[1:])
 
         return (dep, desc)
+
+    def split_dep_condition(self, dep):
+        conditions = ("<=", ">=", "=", "<", ">")
+        found_condition = None
+
+        for condition in conditions:
+            if condition in dep:
+                found_condition = condition
+                break
+
+        if found_condition is None:
+            return (dep, None, None)
+
+        dep, version = dep.split(found_condition)
+
+        return (dep, found_condition, version)
