@@ -169,3 +169,10 @@ class SrcinfoParser:
             return f"{var}_{arch}"
         else:
             return var
+
+    def split_dep_description(self, dep):
+        parts = dep.split(": ")
+        dep = parts[0]
+        desc = ": ".join(parts[1:])
+
+        return (dep, desc)
