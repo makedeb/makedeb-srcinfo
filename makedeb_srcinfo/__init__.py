@@ -160,12 +160,7 @@ class SrcinfoParser:
 
         return returned_matches
 
-    def construct_extended_variable_name(self, parts):
-        if len(parts) != 3:
-            raise InputError("Expected three items.")
-
-        distro, var, arch = parts
-
+    def construct_extended_variable_name(self, distro, var, arch):
         if distro and arch:
             return f"{distro}_{var}_{arch}"
         elif distro:
