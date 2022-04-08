@@ -39,6 +39,7 @@ class SrcinfoParser:
         "makedepends",
         "checkdepends",
         "optdepends",
+        "conflicts",
         "provides",
         "replaces",
         "source",
