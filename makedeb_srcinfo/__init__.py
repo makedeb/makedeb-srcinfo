@@ -1,6 +1,9 @@
 class ParsingError(Exception):
     pass
 
+class InputError:
+    pass
+
 class SrcinfoParser:
     """
     Class to parse a SRCINFO file.
@@ -156,3 +159,18 @@ class SrcinfoParser:
             returned_matches[distro, arch] = self.get_variable(match)
 
         return returned_matches
+
+    def construct_extended_variable_name(self, parts):
+        if len(parts) != 3:
+            raise InputError("Expected three items.")
+
+        distro, var, arch = parts
+
+        if distro and arch:
+            return f"{distro}_{var}_{arch}"
+        elif distro:
+            return f"{distro}_{var}"
+        elif arch:
+            return f"{var}_{arch}"
+        else:
+            return var
