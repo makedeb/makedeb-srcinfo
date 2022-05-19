@@ -17,8 +17,7 @@ class SrcinfoParser:
         "pkgver",
         "pkgrel",
         "epoch",
-        "url",
-        "license",
+        "url"
     )
 
     _arrays = (
