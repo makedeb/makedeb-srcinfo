@@ -1,0 +1,18 @@
+[package]
+name = "makedeb-srcinfo"
+version = "0.6.0"
+authors = ["Hunter Wittenborn <hunter@hunterwittenborn.com>"]
+description = "Rust + Python library for parsing makedeb-styled .SRCINFO files"
+edition = "2021"
+homepage = "https://github.com/makedeb/makedeb-srcinfo"
+repository = "https://github.com/makedeb/makedeb-srcinfo"
+license = "GPL-3.0-or-later"
+keywords = ["makedeb", "mpr", "srcinfo", "pkgbuild"]
+categories = ["parser-implementations"]
+
+[lib]
+crate-type = ["lib", "cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.16.5", features = ["extension-module"] }
+regex = "1.6.0"

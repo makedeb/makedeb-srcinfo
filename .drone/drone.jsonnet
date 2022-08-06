@@ -1,21 +1,46 @@
-local publishPypi() = {
-    name: "publish-pypi",
+local UnitTests() = {
+    name: "run-tests",
     kind: "pipeline",
     type: "docker",
     trigger: {branch: ["main"]},
-
     steps: [{
-        name: "publish-pypi",
-        image: "python:3",
-        environment: {pypi_api_key: {from_secret: "pypi_api_key"}},
-        commands: [
-            "pip install build twine",
-            "python3 -m build",
-            "python3 -m twine upload -u '__token__' -p \"$${pypi_api_key}\" --non-interactive dist/*"
-        ]
+	name: "run-tests",
+        image: "proget.makedeb.org/docker/makedeb/makedeb:ubuntu-jammy",
+	commands: [
+	    "sudo chown 'makedeb:makedeb' ./ -R",
+	    ".drone/scripts/setup-pbmpr.sh",
+	    "sudo apt install rustup -y",
+	    "rustup install stable",
+	    "cargo fmt --check",
+	    "cargo clippy -- -D warnings",
+	    "cargo test"
+	]
     }]
 };
 
-[publishPypi()]
+local DeployCratesIO() = {
+    name: "deploy-crates-io",
+    kind: "pipeline",
+    type: "docker",
+    trigger: {branch: ["main"]},
+    steps: [{
+	name: "deploy-crates-io",
+        image: "proget.makedeb.org/docker/makedeb/makedeb:ubuntu-jammy",
+	environment: {
+	    CARGO_REGISTRY_TOKEN: {from_secret: "crates_api_key"}
+	},
+	commands: [
+	    ".drone/scripts/setup-pbmpr.sh",
+	    "sudo apt install rustup -y",
+	    "rustup install stable",
+	    "cargo publish",
+	]
+    }]
+};
 
-// vim: set sw=4 expandtab:
+[
+    UnitTests(),
+    DeployCratesIO()
+]
+
+// vim: set sw=4:
