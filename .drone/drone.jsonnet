@@ -48,15 +48,11 @@ local DeployPyPI() = {
     depends_on: ["run-tests"],
     steps: [{
 	name: "deploy-crates-io",
-        image: "proget.makedeb.org/docker/makedeb/makedeb:ubuntu-jammy",
+        image: "ghcr.io/pyo3/maturin:main",
 	environment: {
 	    pypi_api_key: {from_secret: "pypi_api_key"}
 	},
 	commands: [
-	    "sudo chown 'makedeb:makedeb' ./ -R",
-	    ".drone/scripts/setup-pbmpr.sh",
-	    "sudo apt install rustup maturin -y",
-	    "rustup install stable",
 	    "maturin publish -u '__token__' -p \"$${pypi_api_key}\""
 	]
     }]
