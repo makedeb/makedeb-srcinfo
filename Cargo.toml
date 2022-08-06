@@ -1,6 +1,6 @@
 [package]
 name = "makedeb-srcinfo"
-version = "0.6.0"
+version = "0.6.1"
 authors = ["Hunter Wittenborn <hunter@hunterwittenborn.com>"]
 description = "Rust + Python library for parsing makedeb-styled .SRCINFO files"
 edition = "2021"
