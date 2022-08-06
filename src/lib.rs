@@ -7,6 +7,9 @@
 use regex::Regex;
 use std::collections::HashMap;
 
+// Python bindings.
+mod python;
+
 /// A list of items that should always be strings (i.e. a maximum of one can be present) in a `.SRCINFO` file.
 pub const SRCINFO_STRINGS: [&str; 10] = [
     "pkgbase", "pkgdesc", "pkgver", "pkgrel", "epoch", "url", "preinst", "postinst", "prerm",
@@ -225,10 +228,10 @@ impl SrcInfo {
         self.map.get(&key.to_owned())
     }
 
-    /// Get the extended values (as well as the key itself) for anything under [`SRCINFO_EXTENDED`]. Use this if you need a variable as well as any
+    /// Get the extended names (as well as the key itself) for a variable. Use this if you need a variable as well as any
     /// same variable that contains distribution and architecture extensions.
     ///
-    /// If `key` isn't in [`SRCINFO_EXTENDED`], this will return the [`None`] variant, regardless
+    /// If `key` isn't a key makedeb supports for variable name extensions, this will return the [`None`] variant, regardless
     /// of if the base key is in the `.SRCINFO` file or not.
     ///
     /// This returns a vector of strings that can be then passed into [`SrcInfo.get_string`] and

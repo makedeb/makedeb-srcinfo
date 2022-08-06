@@ -23,6 +23,7 @@ local DeployCratesIO() = {
     kind: "pipeline",
     type: "docker",
     trigger: {branch: ["main"]},
+    depends_on: ["run-tests"],
     steps: [{
 	name: "deploy-crates-io",
         image: "proget.makedeb.org/docker/makedeb/makedeb:ubuntu-jammy",
@@ -30,6 +31,7 @@ local DeployCratesIO() = {
 	    CARGO_REGISTRY_TOKEN: {from_secret: "crates_api_key"}
 	},
 	commands: [
+	    "sudo chown 'makedeb:makedeb' ./ -R",
 	    ".drone/scripts/setup-pbmpr.sh",
 	    "sudo apt install rustup -y",
 	    "rustup install stable",
@@ -38,9 +40,32 @@ local DeployCratesIO() = {
     }]
 };
 
+local DeployPyPI() = {
+    name: "deploy-pypi",
+    kind: "pipeline",
+    type: "docker",
+    trigger: {branch: ["main"]},
+    depends_on: ["run-tests"],
+    steps: [{
+	name: "deploy-crates-io",
+        image: "proget.makedeb.org/docker/makedeb/makedeb:ubuntu-jammy",
+	environment: {
+	    pypi_api_key: {from_secret: "pypi_api_key"}
+	},
+	commands: [
+	    "sudo chown 'makedeb:makedeb' ./ -R",
+	    ".drone/scripts/setup-pbmpr.sh",
+	    "sudo apt install rustup maturin -y",
+	    "rustup install stable",
+	    "maturin publish -u '__token__' -p \"$${pypi_api_key}\""
+	]
+    }]
+};
+
 [
     UnitTests(),
-    DeployCratesIO()
+    DeployCratesIO(),
+    DeployPyPI()
 ]
 
 // vim: set sw=4:

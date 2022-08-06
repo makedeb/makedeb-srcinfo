@@ -11,6 +11,7 @@ keywords = ["makedeb", "mpr", "srcinfo", "pkgbuild"]
 categories = ["parser-implementations"]
 
 [lib]
+name = "makedeb_srcinfo"
 crate-type = ["lib", "cdylib"]
 
 [dependencies]
