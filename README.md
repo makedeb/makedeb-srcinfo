@@ -58,6 +58,9 @@ fn main() {
 ```
 
 #### Python
+Note
+Help is currently needed to get Python documentation automatically published on new releases. Please see https://github.com/makedeb/makedeb-srcinfo/issues/3 if you'd like to help.
+
 ```python3
 #!/usr/bin/env python3
 from makedeb_srcinfo import SrcInfo
