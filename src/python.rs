@@ -1,4 +1,4 @@
-use crate::SrcInfo as RustSrcInfo;
+use crate::{SplitPackage as RustSplitPackage, SrcInfo as RustSrcInfo};
 use pyo3::{create_exception, exceptions::PyException, prelude::*};
 
 // Exceptions
@@ -47,8 +47,8 @@ impl SrcInfo {
     /// extended by makedeb are supported.
     ///
     /// Returns the the value of the variable if it can be found, otherwise :class:`None` is returned.
-    pub fn get_string(&self, key: &str) -> Option<String> {
-        self.srcinfo.get_string(key).cloned()
+    pub fn get_string(&self, key: String) -> Option<String> {
+        self.srcinfo.get_string(&key).cloned()
     }
 
     /// Get a value for anything that's an array variable in a PKGBUILD.
@@ -57,8 +57,8 @@ impl SrcInfo {
     /// extended by makedeb are supported.
     ///
     /// Returns a list of values if the variable can be found, otherwise :class:`None` is returned.
-    pub fn get_array(&self, key: &str) -> Option<Vec<String>> {
-        self.srcinfo.get_array(key).cloned()
+    pub fn get_array(&self, key: String) -> Option<Vec<String>> {
+        self.srcinfo.get_array(&key).cloned()
     }
 
     /// Get the extended names (as well as the key itself) for a variable. Use this if you need a variable as well as any                          
@@ -68,13 +68,38 @@ impl SrcInfo {
     ///
     /// This returns a list of strings that can be then passed into :func:`~makedeb_srcinfo.SrcInfo.get_string` and
     /// :func:`~makedeb_srcinfo.SrcInfo.get_array`.
-    pub fn get_extended_values(&self, key: &str) -> Option<Vec<String>> {
-        self.srcinfo.get_extended_values(key)
+    pub fn get_extended_values(&self, key: String) -> Option<Vec<String>> {
+        self.srcinfo.get_extended_values(&key)
+    }
+}
+
+#[allow(dead_code)]
+#[pyclass(dict)]
+pub struct SplitPackage {
+    #[pyo3(get, set)]
+    pub pkgname: String,
+    #[pyo3(get, set)]
+    pub operator: Option<String>,
+    #[pyo3(get, set)]
+    pub version: Option<String>,
+}
+
+#[pymethods]
+impl SplitPackage {
+    #[new]
+    fn new(pkg_string: String) -> Self {
+        let split_pkg = RustSplitPackage::new(&pkg_string);
+        Self {
+            pkgname: split_pkg.pkgname,
+            operator: split_pkg.operator,
+            version: split_pkg.version,
+        }
     }
 }
 
 #[pymodule]
 fn makedeb_srcinfo(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
     m.add_class::<SrcInfo>()?;
+    m.add_class::<SplitPackage>()?;
     Ok(())
 }

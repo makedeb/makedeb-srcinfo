@@ -259,3 +259,35 @@ impl SrcInfo {
         }
     }
 }
+
+/// A Struct representing a package's name, operator, and version.
+pub struct SplitPackage {
+    pub pkgname: String,
+    pub operator: Option<String>,
+    pub version: Option<String>,
+}
+
+impl SplitPackage {
+    /// Split a dependency into its name, equality operator, and version.
+    /// Note that this function simply splits on the first operator ("<<", ">=", etc etc.) found - if you pass in more than one the returned 'version' field will contain the remaining operators. Versions are also not checked to see if they're valid, if you need such behavior please check inside of your application.
+    pub fn new(pkg_string: &str) -> Self {
+        let pkg = pkg_string.to_owned();
+
+        for operator in ["<<", ">>", "<=", ">=", "="] {
+            if pkg.contains(operator) {
+                let (pkgname, version) = pkg.split_once(operator).unwrap();
+                return Self {
+                    pkgname: pkgname.to_owned(),
+                    operator: Some(operator.to_owned()),
+                    version: Some(version.to_owned()),
+                };
+            }
+        }
+
+        Self {
+            pkgname: pkg_string.to_owned(),
+            operator: None,
+            version: None,
+        }
+    }
+}
