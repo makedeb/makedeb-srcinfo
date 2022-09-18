@@ -8,6 +8,7 @@ use regex::Regex;
 use std::collections::HashMap;
 
 // Python bindings.
+#[cfg(feature = "python")]
 mod python;
 
 /// A list of items that should always be strings (i.e. a maximum of one can be present) in a `.SRCINFO` file.

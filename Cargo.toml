@@ -1,6 +1,6 @@
 [package]
 name = "makedeb-srcinfo"
-version = "0.7.0"
+version = "0.7.1"
 authors = ["Hunter Wittenborn <hunter@hunterwittenborn.com>"]
 description = "Rust + Python library for parsing makedeb-styled .SRCINFO files"
 edition = "2021"
@@ -15,5 +15,8 @@ name = "makedeb_srcinfo"
 crate-type = ["lib", "cdylib"]
 
 [dependencies]
-pyo3 = { version = "0.16.5", features = ["extension-module"] }
+pyo3 = { version = "0.16.5", features = ["extension-module"], optional = true }
 regex = "1.6.0"
+
+[features]
+python = ["dep:pyo3" ]
