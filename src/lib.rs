@@ -274,7 +274,7 @@ impl SplitPackage {
     pub fn new(pkg_string: &str) -> Self {
         let pkg = pkg_string.to_owned();
 
-        for operator in ["<<", ">>", "<=", ">=", "="] {
+        for operator in ["<=", ">=", "=", "<", ">"] {
             if pkg.contains(operator) {
                 let (pkgname, version) = pkg.split_once(operator).unwrap();
                 return Self {
@@ -290,5 +290,50 @@ impl SplitPackage {
             operator: None,
             version: None,
         }
+    }
+}
+
+/// A Struct representing a dependeny string (i.e. `pkg1|pkg2>=5`).
+/// Note that any prefix such as `p!` will be kept on the first package, and must be removed manually client-side.
+pub struct SplitDependency {
+    pub(crate) deps: Vec<SplitPackage>,
+}
+
+impl SplitDependency {
+    /// Create a new [`SplitDependency`] instance.
+    pub fn new(dep_string: &str) -> Self {
+        let mut deps = vec![];
+
+        for dep in dep_string.split('|') {
+            deps.push(SplitPackage::new(dep));
+        }
+
+        Self { deps }
+    }
+
+    pub(crate) fn internal_as_control(deps: &Vec<SplitPackage>) -> String {
+        let mut segments = vec![];
+
+        for dep in deps {
+            if dep.operator.is_some() && dep.version.is_some() {
+                let mut operator = dep.operator.as_ref().unwrap().clone();
+                let version = dep.version.as_ref().unwrap();
+
+                if ["<", ">"].contains(&operator.as_str()) {
+                    operator = operator.clone() + &operator;
+                }
+
+                segments.push(format!("{} ({} {})", dep.pkgname, operator, version));
+            } else {
+                segments.push(dep.pkgname.clone());
+            }
+        }
+
+        segments.join(" | ")
+    }
+
+    /// Print a Debian control-file styled representation of this dependency.
+    pub fn as_control(&self) -> String {
+        Self::internal_as_control(&self.deps)
     }
 }

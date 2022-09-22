@@ -1,4 +1,7 @@
-use crate::{SplitPackage as RustSplitPackage, SrcInfo as RustSrcInfo};
+use crate::{
+    SplitDependency as RustSplitDependency, SplitPackage as RustSplitPackage,
+    SrcInfo as RustSrcInfo,
+};
 use pyo3::{create_exception, exceptions::PyException, prelude::*};
 
 // Exceptions
@@ -74,6 +77,7 @@ impl SrcInfo {
 }
 
 #[allow(dead_code)]
+#[derive(Clone)]
 #[pyclass(dict)]
 pub struct SplitPackage {
     #[pyo3(get, set)]
@@ -97,9 +101,55 @@ impl SplitPackage {
     }
 }
 
+impl SplitPackage {
+    fn to_rust_split_package(&self) -> RustSplitPackage {
+        RustSplitPackage {
+            pkgname: self.pkgname.clone(),
+            operator: self.operator.clone(),
+            version: self.version.clone(),
+        }
+    }
+}
+
+#[derive(Clone)]
+#[pyclass(dict)]
+pub struct SplitDependency {
+    #[pyo3(get, set)]
+    pub deps: Vec<SplitPackage>,
+}
+
+#[pymethods]
+impl SplitDependency {
+    #[new]
+    fn new(dep_string: String) -> Self {
+        let mut deps = vec![];
+
+        for dep in RustSplitDependency::new(&dep_string).deps {
+            deps.push(SplitPackage {
+                pkgname: dep.pkgname,
+                operator: dep.operator,
+                version: dep.version,
+            });
+        }
+
+        Self { deps }
+    }
+
+    fn as_control(&self) -> String {
+        let mut deps = vec![];
+
+        for dep in &self.deps {
+            deps.push(dep.to_rust_split_package());
+        }
+
+        RustSplitDependency::internal_as_control(&deps)
+    }
+}
+
 #[pymodule]
 fn makedeb_srcinfo(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
     m.add_class::<SrcInfo>()?;
     m.add_class::<SplitPackage>()?;
+    m.add_class::<SplitDependency>()?;
     Ok(())
 }
