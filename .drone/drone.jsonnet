@@ -53,7 +53,7 @@ local DeployPyPI() = {
 	    pypi_api_key: {from_secret: "pypi_api_key"}
 	},
 	commands: [
-	    "maturin publish -F python -u '__token__' -p \"$${pypi_api_key}\""
+	    "maturin publish --all-features -F python -u '__token__' -p \"$${pypi_api_key}\""
 	]
     }]
 };
